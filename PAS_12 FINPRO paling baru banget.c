@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <omp.h>
 
 #define HARGA_DASAR 100 
 
@@ -10,7 +11,9 @@ typedef struct Anggota {
     int jumlah_pembelian;
     double keuntunganTotal;
     struct Anggota *kiri, *kanan;
-    int referer_id;
+    char referer_id[5];
+    char referer_code[5];
+    int komisi;
 } Anggota;
 
 Anggota *akar = NULL;
@@ -29,9 +32,20 @@ void cariAnggotaDenganNama(Anggota *akar, char *nama) {
     if (akar != NULL) {
         cariAnggotaDenganNama(akar->kiri, nama);
         if (strcmp(akar->nama, nama) == 0) {
-            printf("ID: %d, Nama: %s, Pembelian: %d\n", akar->id, akar->nama, akar->jumlah_pembelian);
+            printf("ID: %d, Nama: %s, Pembelian: %d, Komisi %d\n", akar->id, akar->nama, akar->jumlah_pembelian, akar->komisi);
         }
         cariAnggotaDenganNama(akar->kanan, nama);
+    }
+}
+// sama tpi pake nama
+void komisiReferal(Anggota *akar, char *referer_id) {
+    if (akar != NULL) {
+        komisiReferal(akar->kiri, referer_id);
+        if (strcmp(akar->referer_code, referer_id) == 0) {
+            akar->komisi+=2600;
+        }
+        komisiReferal(akar->kanan, referer_id);
+
     }
 }
 
@@ -95,14 +109,16 @@ void displayStats() {
 void tampilkanSemuaAnggota(Anggota *node) {
     if (node != NULL) {
         tampilkanSemuaAnggota(node->kiri);
-        printf("ID: %d, Nama: %s, Jumlah Pembelian: %d, Keuntungan Total: %.2f\n", node->id, node->nama, node->jumlah_pembelian, node->keuntunganTotal);
+        printf("ID: %d, Nama: %s, Jumlah Pembelian: %d, Keuntungan Total: %.2f, Komisi Total: %.2f\n", node->id, node->nama, node->jumlah_pembelian, node->keuntunganTotal, node->referer_code, node->komisi);
         tampilkanSemuaAnggota(node->kanan);
     }
 }
 
 
 // nambah anggota baru
-Anggota* tambahAnggota(Anggota *simpul, int id, char *nama, int referer_id) {
+Anggota* tambahAnggota(Anggota *simpul, int id, char *nama, char *referer_id) {
+    int i, komisi=0;
+      komisiReferal(simpul->kanan, referer_id);
     if (simpul == NULL) {
         Anggota *simpulBaru = (Anggota*)malloc(sizeof(Anggota));
         simpulBaru->id = id;
@@ -110,7 +126,7 @@ Anggota* tambahAnggota(Anggota *simpul, int id, char *nama, int referer_id) {
         simpulBaru->jumlah_pembelian = 0;
         simpulBaru->keuntunganTotal = 0;
         simpulBaru->kiri = simpulBaru->kanan = NULL;
-        simpulBaru->referer_id = referer_id;
+        strcpy(simpulBaru->referer_id, referer_id);
         return simpulBaru;
     }
     if (id < simpul->id)
@@ -152,14 +168,6 @@ void prosesPembelian(Anggota *ang) {
 
     printf("Harga Pembelian: %.2f\n", hargaPembelian);
     printf("Keuntungan Perusahaan: %.2f\n", keuntunganPerusahaan);
-
-    // Komisi diberikan ke anggota yang mereferensikan (jika ada)
-    if (ang->referer_id != 0 && ang->jumlah_pembelian == 0) {
-        Anggota *referer = cariAnggota(akar, ang->referer_id);
-        if (referer) {
-            printf("Komisi %.2f diberikan kepada %s (ID: %d)\n", komisi, referer->nama, referer->referer_id);
-        }
-    }
     ang->jumlah_pembelian++;
     ang->keuntunganTotal += keuntunganPerusahaan;
 }
@@ -208,7 +216,8 @@ void tampilkanLaporanKeuangan(Anggota *simpul) {
 }
 
 int main() {
-    int pilihan, id, referer_id;
+    int pilihan, id;
+    char referer_id[5];
     char nama[100];
 
     while (1) {
