@@ -59,7 +59,7 @@ void komisiReferal(Anggota *akar, char *referer_id, int komisi) {
         }
         if (strcmp(akar->referer_code, referer_id) == 0) {
             akar->komisi += komisi;
-            komisiReferal(akar, akar->referer_code, komisi/20);
+            komisiReferal(akar, akar->referer_id, komisi/20);
         }
         #pragma omp task shared(akar, referer_id, komisi)
         {
@@ -316,7 +316,7 @@ int main() {
                 printf("Masukkan password(maksimal 7 huruf): ");
                 scanf("%s", password);
                 printf("Buat Kode Referal(Maksimal 5 huruf): ");
-                scanf("%s", referalIn);
+                scanf("%[^\n]s", referalIn);
                 clear(); 
                 akar = tambahAnggota(akar, id, nama, password, referer_id, referalIn);
                 strcpy(referal_tampil,referalIn);
