@@ -15,9 +15,8 @@
 #define HARGA_DASAR 100 
 
 typedef struct Anggota {
-    int id;
+    int id, jumlah_pembelian, komisi;
     char nama[100], password[100], referer_id[5], referer_code[5];
-    int jumlah_pembelian, komisi;
     double keuntunganTotal;
     struct Anggota *kiri, *kanan;
 } Anggota;
