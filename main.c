@@ -144,8 +144,8 @@ void displayStats() {
 void tampilkanSemuaAnggota(Anggota *node) {
     if (node != NULL) {
         tampilkanSemuaAnggota(node->kiri);
-        printf("ID: %d, Nama: %s, Jumlah Pembelian: %d, Keuntungan Total: %.2f, Komisi Total: %d, password: %s\n", 
-               node->id, node->nama, node->jumlah_pembelian, node->keuntunganTotal, node->komisi, node->password);
+        printf("ID: %d, Nama: %s, Jumlah Pembelian: %d, Keuntungan Total: %.2f, Komisi Total: %d, password: %s, Kode Referral: %s, Input Referral: %s\n", 
+               node->id, node->nama, node->jumlah_pembelian, node->keuntunganTotal, node->komisi, node->password, node->referer_code, node->referer_id);
         tampilkanSemuaAnggota(node->kanan);
     }
 }
@@ -176,8 +176,8 @@ Anggota* tambahAnggota(Anggota *simpul, int id, char *nama, char *password, char
 void simpanDataAnggotaKeFile(Anggota *node, FILE *file) {
     if (node != NULL) {
         simpanDataAnggotaKeFile(node->kiri, file);
-        fprintf(file, "ID: %d, Nama: %s, Jumlah Pembelian: %d, Keuntungan Total: %.2f, Komisi Total: %d, password: %s\n", 
-                node->id, node->nama, node->jumlah_pembelian, node->keuntunganTotal, node->komisi, node->password);
+        fprintf(file, "ID: %d, Nama: %s, Jumlah Pembelian: %d, Keuntungan Total: %.2f, Komisi Total: %d, password: %s, Kode Referral: %s, Input Referral: %s\n", 
+                node->id, node->nama, node->jumlah_pembelian, node->keuntunganTotal, node->komisi, node->password, node->referer_code, node->referer_id);
         simpanDataAnggotaKeFile(node->kanan, file);
     }
 }
